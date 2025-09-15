@@ -130,7 +130,7 @@ for i in range(1,81):
     recuperados.append(num_rec)
 
 # Codigo para crear y anhadir las graficas del gif
-''' 
+ 
     fig, ax = plt.subplots()
     plt.axis('scaled')
     ax.set(xlim=(-1,1),ylim=(-1,1))
@@ -144,21 +144,21 @@ for i in range(1,81):
     plt.close()
 
     images.append(imageio.imread("1Fig{0}.png".format(i)))
-'''
+
 
 # Graficacion de los resultados finales    
-plt.figure()
-plt.fill_between(tiempo,0,infectados,facecolor='red',label='Contagiados')
-plt.fill_between(tiempo,recuperados,n,facecolor='green',label='Recuperados')
-plt.fill_between(tiempo,infectados,recuperados,facecolor='blue',label='Sanos')
-plt.ylim(0,n)
-plt.ylabel("Numero de personas")
-plt.xlabel("Tiempo")
-plt.title("Ningun control",loc='left')
-plt.legend(loc=2)
-plt.grid()
-plt.savefig("Graficofinal1")
-plt.close()
+# plt.figure()
+# plt.fill_between(tiempo,0,infectados,facecolor='red',label='Contagiados')
+# plt.fill_between(tiempo,recuperados,n,facecolor='green',label='Recuperados')
+# plt.fill_between(tiempo,infectados,recuperados,facecolor='blue',label='Sanos')
+# plt.ylim(0,n)
+# plt.ylabel("Numero de personas")
+# plt.xlabel("Tiempo")
+# plt.title("Ningun control",loc='left')
+# plt.legend(loc=2)
+# plt.grid()
+# plt.savefig("Graficofinal1")
+# plt.close()
 
 #Generador del gif
 #imageio.mimsave('caso1.gif', images, 'GIF', duration=0.03)

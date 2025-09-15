@@ -1,6 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import imageio
+from PIL import Image
+from sim_visual import setup_axis, capture_frame, init_patches, save_frames
+from sim_physics import resolve_collisions
 import itertools
 
 
@@ -76,11 +79,14 @@ for p in range(s,n):
 
 colors = ["b","r","g"] 
 images = []
+target_shape_holder = {'shape': None}
 tiempo = []
 infectados = []
 recuperados = []
 
-for i in range(1,1001):
+t_n = 81
+
+for i in range(1,t_n):
     Par2 = Par
     Xs = []
     Ys = []
@@ -88,33 +94,14 @@ for i in range(1,1001):
     num_inf = 0
     num_rec = 200
 
-    #Recorre las particulas en movimiento
+    #Reorre las particulas en movimiento
     for j in range(s):
         Par2j = Par2[j]
         Parj = Par[j]
-        
+
         Rj = Par2j.R
         Vj = Par2j.V
-        
-        for k in range(j+1,n):
-            Par2k = Par2[k]
-            Park = Par[k]
-
-            #Condicion de colision
-            if (np.linalg.norm(Par2j.R-Par2k.R) <= (diametro+delta_r)):
-                
-                if Parj.Color == 0 and Park.Color == 1:
-                    Parj.Color = 1
-                elif Parj.Color == 1 and Park.Color == 0:
-                    Park.Color = 1
-
-                #Revisando particulas en movimiento
-                if Parj.Mov == 1:
-                    Parj.Colision(Park.R,Park.V,Park.Mov)
-                if Park.Mov == 1:
-                    Park.Colision(Parj.R,Vj,Parj.Mov)
-
-            Par[k] = Park
+        # per-step collision resolution handled centrally (called after particle loops)
 
         # Condicion Paredes verticales 
         if (Rj[0] <= (-1+radio+delta_r)) or (Rj[0] >= (1-radio-delta_r)):
@@ -164,40 +151,35 @@ for i in range(1,1001):
 
         Par[z] = Parz
 
+    # resolve collisions for the whole system at this step
+    resolve_collisions(Par, diametro)
+
     tiempo.append(i)
     infectados.append(num_inf)
     recuperados.append(num_rec)
 
 # Codigo para crear y anhadir las graficas del gif
-'''    
-    fig, ax = plt.subplots()
-    plt.axis('scaled')
-    ax.set(xlim=(-1,1),ylim=(-1,1))
-    circles = [plt.Circle((xi,yi), radius=radio, color=colors[ci])
-               for xi,yi,ci in zip(Xs,Ys,Colores)]
-    
-    for l in range(n):
-        ax.add_artist(circles[l])
-        
-    plt.savefig("3Fig{0}".format(i))
+
+    fig, ax = setup_axis()
+    particles = [type('P', (), {'R':np.array([x,y]), 'Color':c}) for x,y,c in zip(Xs,Ys,Colores)]
+    patches = init_patches(ax, particles, radio, colors)
+    capture_frame(fig, images, target_shape_holder)
     plt.close()
 
-    images.append(imageio.imread("3Fig{0}.png".format(i)))
-'''    
 
 # Graficacion de los resultados finales
-plt.figure()
-plt.fill_between(tiempo,0,infectados,facecolor='red',label='Contagiados')
-plt.fill_between(tiempo,recuperados,n,facecolor='green',label='Recuperados')
-plt.fill_between(tiempo,infectados,recuperados,facecolor='blue',label='Sanos')
-plt.ylim(0,n)
-plt.ylabel("Numero de personas")
-plt.xlabel("Tiempo")
-plt.title("Distanciamiento moderado", loc='left')
-plt.legend(loc=2)
-plt.grid()
-plt.savefig("Graficofinal3")
-plt.close()
+# plt.figure()
+# plt.fill_between(tiempo,0,infectados,facecolor='red',label='Contagiados')
+# plt.fill_between(tiempo,recuperados,n,facecolor='green',label='Recuperados')
+# plt.fill_between(tiempo,infectados,recuperados,facecolor='blue',label='Sanos')
+# plt.ylim(0,n)
+# plt.ylabel("Numero de personas")
+# plt.xlabel("Tiempo")
+# plt.title("Distanciamiento moderado", loc='left')
+# plt.legend(loc=2)
+# plt.grid()
+# plt.savefig("Graficofinal3")
+# plt.close()
 
 # Generador del gif
-#imageio.mimsave('caso3.gif', images, 'GIF', duration=0.05)
+imageio.mimsave('caso3.gif', images, 'GIF', duration=0.05)
